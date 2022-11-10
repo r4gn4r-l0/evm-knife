@@ -1,6 +1,9 @@
 package opcode
 
-import "encoding/hex"
+import (
+	"encoding/hex"
+	"fmt"
+)
 
 type Opcode struct {
 	HexBytecode []byte
@@ -15,8 +18,8 @@ type Command struct {
 
 func (o *Opcode) ToString() string {
 	var output string = ""
-	for _, line := range o.Output {
-		output += line.Cmd + "\t" + hex.EncodeToString(line.Input) + "\n"
+	for i, line := range o.Output {
+		output += fmt.Sprintf("0x%x", i) + "\t" + line.Cmd + "\t\t" + hex.EncodeToString(line.Input) + "\n"
 	}
 	return output
 }

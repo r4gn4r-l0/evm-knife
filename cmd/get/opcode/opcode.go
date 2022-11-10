@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var filename string
 var OpcodeCmd = &cobra.Command{
 	Use: "opcode",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -20,17 +20,27 @@ var OpcodeCmd = &cobra.Command{
 			panic(err)
 		}
 		var hexbytecode []byte
-		if fi.Mode()&os.ModeNamedPipe == 0 {
-			fmt.Println("no pipe :(")
-		} else {
-			reader := bufio.NewReader(os.Stdin)
-			input, _, err := reader.ReadLine()
-			if err != nil && err == io.EOF {
-				fmt.Println("ERROR... TODO")
+		var reader *bufio.Reader
+		if len(filename) > 0 {
+			f, err := os.Open(filename)
+			if err != nil {
+				panic(err)
 			}
-			hexbytecode, _ = hex.DecodeString(strings.Replace(string(input), "0x", "", 1))
+			reader = bufio.NewReader(f)
+		} else if fi.Mode()&os.ModeNamedPipe != 0 {
+			reader = bufio.NewReader(os.Stdin)
+		} else {
+			cmd.Help()
+			panic("no bytecode given")
 		}
-
+		input, _, err := reader.ReadLine()
+		if err != nil {
+			panic(err)
+		}
+		hexbytecode, err = hex.DecodeString(strings.Replace(string(input), "0x", "", 1))
+		if err != nil {
+			panic(err)
+		}
 		var opcode = opcode.Opcode{
 			HexBytecode: hexbytecode,
 		}
@@ -41,4 +51,8 @@ var OpcodeCmd = &cobra.Command{
 		}
 		fmt.Println(opcode.ToString())
 	},
+}
+
+func init() {
+	OpcodeCmd.Flags().StringVar(&filename, "file", "", "Full path to the hex binary file")
 }
