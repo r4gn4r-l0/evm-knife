@@ -10,7 +10,7 @@ Lets you analyze, debug and scan for vulnerabilities of EVM smart contracts.
 
 Lets you generate opcode from bytecode. Bytecode can be loaded from an RPC endpoint, a file or from stdin (piped).
 
-### Debug opcode (not yet implemented)
+### Debug opcode (impl. not yet finished)
 Interactive opcode debugger (like gdb)
 
 ### Generate pseudocode (not yet implemented)
