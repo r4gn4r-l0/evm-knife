@@ -26,7 +26,6 @@ func (o *Debugger) executeCode(code byte) {
 		byteArr := o.pop()
 		offset := new(big.Int).SetBytes(byteArr)
 		value := o.pop()
-		// offset.Add(offset, big.NewInt(1))
 		byteStart := offset.Int64() + int64(0x20) - 1
 		words := byteStart / 0x20
 		if byteStart%0x20 > 0 {
