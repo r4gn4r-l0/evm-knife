@@ -5,27 +5,29 @@ import (
 	"math/big"
 )
 
-func (o *Debugger) StepDebugger() error {
+func (o *Debugger) StepDebugger() (bool, error) {
 	if len(o.Bytecode) > 0 {
 		code := o.Bytecode[o.ProgramCounter]
-		o.executeCode(code)
+		finished := o.executeCode(code)
+		return finished, nil
 	} else {
-		return errors.New("no bytecode given")
+		return true, errors.New("no bytecode given")
 	}
-	return nil
 }
 
-func (o *Debugger) executeCode(code byte) {
+func (o *Debugger) executeCode(code byte) bool {
 	switch {
+	case code == 0x00:
+		return true
 	case code >= 0x60 && code < 0x7f: // PUSHx
 		to := int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]
 		o.ProgramCounter = o.ProgramCounter + to
-		o.push(value)
+		o.stackPush(value)
 	case code == 0x52: // MSTORE
-		byteArr := o.pop()
+		byteArr := o.stackPop()
 		offset := new(big.Int).SetBytes(byteArr)
-		value := o.pop()
+		value := o.stackPop()
 		byteStart := offset.Int64() + int64(0x20) - 1
 		words := byteStart / 0x20
 		if byteStart%0x20 > 0 {
@@ -38,17 +40,17 @@ func (o *Debugger) executeCode(code byte) {
 			o.Memory = append(o.Memory, appendArray...)
 		}
 		for i, val := range value {
-			o.Memory[(byteStart - int64(i))] = val
+			o.Memory[(byteStart - int64(len(value)-1) + int64(i))] = val
 		}
 	}
-
+	return false
 }
 
-func (o *Debugger) push(value []byte) {
+func (o *Debugger) stackPush(value []byte) {
 	o.Stack = append(o.Stack, value)
 }
 
-func (o *Debugger) pop() []byte {
+func (o *Debugger) stackPop() []byte {
 	top := len(o.Stack) - 1
 	value := o.Stack[top]
 	o.Stack = o.Stack[:top] // remove from stack
