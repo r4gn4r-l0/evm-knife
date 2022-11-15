@@ -23,11 +23,19 @@ func (o *Debugger) executeCode(code byte) bool {
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Add(a, b)
+		correctUnderflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x02: // MUL (multiplication)
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Mul(a, b)
+		correctUnderflow(x)
+		o.stackPush(x.Bytes())
+	case code == 0x03: // SUB
+		a := new(big.Int).SetBytes(o.stackPop())
+		b := new(big.Int).SetBytes(o.stackPop())
+		x := a.Sub(a, b)
+		correctUnderflow(x)
 		o.stackPush(x.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
@@ -65,4 +73,11 @@ func (o *Debugger) stackPop() []byte {
 	value := o.Stack[top]
 	o.Stack = o.Stack[:top] // remove from stack
 	return value
+}
+
+func correctUnderflow(x *big.Int) {
+	if x.Sign() < 0 {
+		y := new(big.Int).SetBytes([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})
+		x.Add(y, x).Add(x, big.NewInt(1))
+	}
 }
