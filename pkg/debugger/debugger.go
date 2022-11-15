@@ -2,6 +2,7 @@ package debugger
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -23,41 +24,25 @@ func (o *Debugger) executeCode(code byte) bool {
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Add(a, b)
-		correctUnderflow(x)
-		if x.Cmp(big.NewInt(0)) == 0 {
-			o.stackPush([]byte{0x00})
-			return false
-		}
+		correctOverflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x02: // MUL (multiplication)
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Mul(a, b)
-		correctUnderflow(x)
-		if x.Cmp(big.NewInt(0)) == 0 {
-			o.stackPush([]byte{0x00})
-			return false
-		}
+		correctOverflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x03: // SUB
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Sub(a, b)
 		correctUnderflow(x)
-		if x.Cmp(big.NewInt(0)) == 0 {
-			o.stackPush([]byte{0x00})
-			return false
-		}
 		o.stackPush(x.Bytes())
 	case code == 0x04: // DIV
 		a := new(big.Int).SetBytes(o.stackPop())
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := new(big.Int).Div(a, b)
 		correctUnderflow(x)
-		if x.Cmp(big.NewInt(0)) == 0 {
-			o.stackPush([]byte{0x00})
-			return false
-		}
 		o.stackPush(x.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
@@ -87,6 +72,9 @@ func (o *Debugger) executeCode(code byte) bool {
 }
 
 func (o *Debugger) stackPush(value []byte) {
+	if len(value) == 0 {
+		value = []byte{0x00}
+	}
 	o.Stack = append(o.Stack, value)
 }
 
@@ -101,5 +89,13 @@ func correctUnderflow(x *big.Int) {
 	if x.Sign() < 0 {
 		y := new(big.Int).SetBytes([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})
 		x.Add(y, x).Add(x, big.NewInt(1))
+	}
+}
+
+func correctOverflow(x *big.Int) {
+	fmt.Println(len(x.Bytes()))
+	if len(x.Bytes()) > 32 {
+		// we just let overflow
+		x.SetBytes(x.Bytes()[1:33])
 	}
 }

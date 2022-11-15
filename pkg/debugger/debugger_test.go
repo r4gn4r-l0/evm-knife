@@ -25,6 +25,30 @@ func Test_Add(t *testing.T) {
 	}
 }
 
+func Test_AddOverflow(t *testing.T) {
+	/* testcase
+	x := 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff + 0x01
+	expected
+	x == 0x00
+	*/
+	data, err := hex.DecodeString("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600101")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x00}
+	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_AddBigNumber(t *testing.T) {
 	/* test:
 	x := 0x11111111111111111111111111111111111111111111111111111111111111ff + 0x01
@@ -67,6 +91,30 @@ func Test_Mul(t *testing.T) {
 	debugger.StepDebugger()
 	should := [1]byte{0x04}
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_MulOverflow(t *testing.T) {
+	/* testcase
+	x := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff * 0x02
+	expected
+	x == 0x04
+	*/
+	data, err := hex.DecodeString("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600202")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}
+	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
 		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
