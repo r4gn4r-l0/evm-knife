@@ -121,6 +121,78 @@ func Test_SubUnderFlow(t *testing.T) {
 	}
 }
 
+func Test_Div(t *testing.T) {
+	/* testcase
+	x := 0x06 / 0x02
+	expected
+	x == 0x03
+	*/
+	data, err := hex.DecodeString("6002600604")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x03}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] {
+		t.Fail()
+	}
+}
+
+func Test_DivFloatingPoint(t *testing.T) {
+	/* testcase
+	x := 0x01 / 0x02
+	expected
+	x == 0x00
+	*/
+	data, err := hex.DecodeString("6002600104")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x00}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] {
+		t.Fail()
+	}
+}
+
+func Test_DivFloatingPoint2(t *testing.T) {
+	/* testcase
+	x := 0x05 / 0x02
+	expected
+	x == 0x02
+	*/
+	data, err := hex.DecodeString("6002600504")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x02}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] {
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
