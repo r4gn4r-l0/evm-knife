@@ -6,6 +6,49 @@ import (
 	"testing"
 )
 
+func Test_Add(t *testing.T) {
+	data, err := hex.DecodeString("6001600101")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x02}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] {
+		t.Fail()
+	}
+}
+
+func Test_AddBigNumber(t *testing.T) {
+	/* test:
+	x := 0x11111111111111111111111111111111111111111111111111111111111111ff + 0x01
+	should be
+	x == 0x1111111111111111111111111111111111111111111111111111111111111200
+	*/
+	data, err := hex.DecodeString("7f11111111111111111111111111111111111111111111111111111111111111ff600101")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [32]byte{0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x12, 0x00}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
