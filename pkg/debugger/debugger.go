@@ -24,6 +24,11 @@ func (o *Debugger) executeCode(code byte) bool {
 		b := new(big.Int).SetBytes(o.stackPop())
 		x := a.Add(a, b)
 		o.stackPush(x.Bytes())
+	case code == 0x02: // MUL (multiplication)
+		a := new(big.Int).SetBytes(o.stackPop())
+		b := new(big.Int).SetBytes(o.stackPop())
+		x := a.Mul(a, b)
+		o.stackPush(x.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]

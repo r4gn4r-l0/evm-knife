@@ -49,6 +49,30 @@ func Test_AddBigNumber(t *testing.T) {
 	}
 }
 
+func Test_Mul(t *testing.T) {
+	/* testcase
+	x := 0x02 * 0x02
+	expected
+	x == 0x04
+	*/
+	data, err := hex.DecodeString("6002600202")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x04}
+	fmt.Printf("expected: %x\n", should)
+	fmt.Printf("is: %x\n", debugger.Stack[0])
+	if should[0] != debugger.Stack[0][0] {
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
