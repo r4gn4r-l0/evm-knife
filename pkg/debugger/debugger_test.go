@@ -18,9 +18,9 @@ func Test_Add(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x02}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -42,9 +42,9 @@ func Test_AddBigNumber(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [32]byte{0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x12, 0x00}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -66,9 +66,9 @@ func Test_Mul(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x04}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -79,7 +79,7 @@ func Test_Sub(t *testing.T) {
 	expected
 	x == 0x04
 	*/
-	data, err := hex.DecodeString("6006600203")
+	data, err := hex.DecodeString("6002600603")
 	if err != nil {
 		t.Error(err)
 	}
@@ -90,9 +90,9 @@ func Test_Sub(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x04}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -114,9 +114,9 @@ func Test_SubUnderFlow(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -138,9 +138,9 @@ func Test_Div(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x03}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -162,9 +162,9 @@ func Test_DivFloatingPoint(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x00}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -186,9 +186,9 @@ func Test_DivFloatingPoint2(t *testing.T) {
 	debugger.StepDebugger()
 	debugger.StepDebugger()
 	should := [1]byte{0x02}
-	fmt.Printf("expected: %x\n", should)
-	fmt.Printf("is: %x\n", debugger.Stack[0])
 	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
 		t.Fail()
 	}
 }
@@ -202,32 +202,11 @@ func Test_PushAndMstore(t *testing.T) {
 		Bytecode: data,
 	}
 	debugger.StepDebugger()
-	fmt.Println("\nNext step:")
-	fmt.Print("Stack:\t")
-	fmt.Println(debugger.Stack)
-	fmt.Print("Memory:\t")
-	fmt.Printf("0x%x\n", debugger.Memory)
-
 	debugger.StepDebugger()
-	fmt.Println("\nNext step:")
-	fmt.Print("Stack:\t")
-	fmt.Println(debugger.Stack)
-	fmt.Print("Memory:\t")
-	fmt.Printf("0x%x\n", debugger.Memory)
-
 	debugger.StepDebugger()
-	fmt.Println("\nNext step:")
-	fmt.Print("Stack:\t")
-	fmt.Println(debugger.Stack)
-	fmt.Print("Memory:\t")
-	fmt.Printf("0x%x\n", debugger.Memory)
 	expected := [64]byte{
 		byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x42), byte(0x42), byte(0x40), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00),
 	}
-	fmt.Println("\n\n\n==============\nexpected:")
-	fmt.Printf("0x%x\n", expected)
-	fmt.Println("is:")
-	fmt.Printf("0x%x\n", debugger.Memory)
 	if debugger.Memory[0] != expected[0] ||
 		// offset 02 => array 31+2; opcode 62 (PUSH3) => PUSH 3 bytes
 		debugger.Memory[31] != expected[31] || // value = 0x00
@@ -235,6 +214,8 @@ func Test_PushAndMstore(t *testing.T) {
 		debugger.Memory[33] != expected[33] || // value = 0x42
 		debugger.Memory[34] != expected[34] || // value = 0x40
 		debugger.Memory[35] != expected[35] { // value = 0x00
+		fmt.Printf("expected: 0x%x\n", expected)
+		fmt.Printf("is: 0x%x\n", debugger.Memory)
 		t.Fail()
 	}
 }
