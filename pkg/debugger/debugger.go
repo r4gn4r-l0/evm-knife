@@ -49,6 +49,11 @@ func (o *Debugger) executeCode(code byte) bool {
 		b := new(uint256.Int).SetBytes(o.stackPop())
 		x := new(uint256.Int).SDiv(a, b)
 		o.stackPush(x.Bytes())
+	case code == 0x06:
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Mod(a, b)
+		o.stackPush(x.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]
