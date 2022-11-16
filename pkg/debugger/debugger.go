@@ -99,6 +99,99 @@ func (o *Debugger) executeCode(code byte) bool {
 		} else {
 			o.stackPush([]byte{0x00})
 		}
+	case code == 0x12: // SLT
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := a.Slt(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x13: // SGT
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := a.Sgt(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x14: // EQ
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := a.Eq(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x15: // ISZERO
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes([]byte{0x00})
+		x := a.Eq(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x16: // AND
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).And(a, b)
+		o.stackPush(x.Bytes())
+	case code == 0x17: // OR
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Or(a, b)
+		o.stackPush(x.Bytes())
+	case code == 0x18: // XOR
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Xor(a, b)
+		o.stackPush(x.Bytes())
+	case code == 0x19: // NOT
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Not(a)
+		o.stackPush(x.Bytes())
+	case code == 0x1a: // BYTE
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := b.Byte(a)
+		o.stackPush(x.Bytes())
+	case code == 0x1b: // SHL
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		if a.LtUint64(256) {
+			b = b.Lsh(b, uint(a.Uint64()))
+		} else {
+			b = b.Clear()
+		}
+		o.stackPush(b.Bytes())
+	case code == 0x1c: // SHR
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		if a.LtUint64(256) {
+			b = b.Rsh(b, uint(a.Uint64()))
+		} else {
+			b = b.Clear()
+		}
+		o.stackPush(b.Bytes())
+	case code == 0x1d: // SAR
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		if a.GtUint64(256) {
+			if b.Sign() >= 0 {
+				b = b.Clear()
+			} else {
+				// Max negative shift: all bits set
+				b = b.SetAllOne()
+			}
+		} else {
+			n := uint(a.Uint64())
+			b = b.SRsh(b, n)
+		}
+		o.stackPush(b.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]
