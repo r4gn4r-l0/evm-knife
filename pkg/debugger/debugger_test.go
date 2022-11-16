@@ -386,6 +386,31 @@ func Test_AddMod(t *testing.T) {
 	}
 }
 
+func Test_MulMod(t *testing.T) {
+	/* testcase
+	x := (0x0a * 0x0a) % 0x08
+	expected
+	x == 0x4
+	*/
+	data, err := hex.DecodeString("6008600a600a09")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x04}
+	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
