@@ -71,6 +71,34 @@ func (o *Debugger) executeCode(code byte) bool {
 		c := new(uint256.Int).SetBytes(o.stackPop())
 		x := new(uint256.Int).MulMod(a, b, c)
 		o.stackPush(x.Bytes())
+	case code == 0x0a: // EXP
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Exp(a, b)
+		o.stackPush(x.Bytes())
+	case code == 0x0b: // SIGNEXTEND
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).ExtendSign(a, b)
+		o.stackPush(x.Bytes())
+	case code == 0x10: // LT
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := a.Lt(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x11: // GT
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := a.Gt(b)
+		if x {
+			o.stackPush([]byte{0x01})
+		} else {
+			o.stackPush([]byte{0x00})
+		}
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]

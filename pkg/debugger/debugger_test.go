@@ -411,6 +411,63 @@ func Test_MulMod(t *testing.T) {
 	}
 }
 
+func Test_SIGNEXTEND(t *testing.T) {
+	data, err := hex.DecodeString("600060ff0b")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
+	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_LT(t *testing.T) {
+	data, err := hex.DecodeString("600a600910")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x01}
+	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_GT(t *testing.T) {
+	data, err := hex.DecodeString("6009600a11")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should := [1]byte{0x01}
+	if should[0] != debugger.Stack[0][0] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
