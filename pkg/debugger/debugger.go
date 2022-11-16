@@ -2,8 +2,8 @@ package debugger
 
 import (
 	"errors"
-	"fmt"
-	"math/big"
+
+	"github.com/holiman/uint256"
 )
 
 func (o *Debugger) StepDebugger() (bool, error) {
@@ -21,28 +21,33 @@ func (o *Debugger) executeCode(code byte) bool {
 	case code == 0x00: // STOP
 		return true
 	case code == 0x01: // ADD
-		a := new(big.Int).SetBytes(o.stackPop())
-		b := new(big.Int).SetBytes(o.stackPop())
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
 		x := a.Add(a, b)
-		correctOverflow(x)
+		// correctOverflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x02: // MUL (multiplication)
-		a := new(big.Int).SetBytes(o.stackPop())
-		b := new(big.Int).SetBytes(o.stackPop())
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
 		x := a.Mul(a, b)
-		correctOverflow(x)
+		// correctOverflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x03: // SUB
-		a := new(big.Int).SetBytes(o.stackPop())
-		b := new(big.Int).SetBytes(o.stackPop())
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
 		x := a.Sub(a, b)
-		correctUnderflow(x)
+		// correctUnderflow(x)
 		o.stackPush(x.Bytes())
 	case code == 0x04: // DIV
-		a := new(big.Int).SetBytes(o.stackPop())
-		b := new(big.Int).SetBytes(o.stackPop())
-		x := new(big.Int).Div(a, b)
-		correctUnderflow(x)
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).Div(a, b)
+		// correctUnderflow(x)
+		o.stackPush(x.Bytes())
+	case code == 0x05: // SDIV (signed div)
+		a := new(uint256.Int).SetBytes(o.stackPop())
+		b := new(uint256.Int).SetBytes(o.stackPop())
+		x := new(uint256.Int).SDiv(a, b)
 		o.stackPush(x.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		to := int16(code) - 0x5e
@@ -51,9 +56,9 @@ func (o *Debugger) executeCode(code byte) bool {
 		o.stackPush(value)
 	case code == 0x52: // MSTORE
 		byteArr := o.stackPop()
-		offset := new(big.Int).SetBytes(byteArr)
+		offset := new(uint256.Int).SetBytes(byteArr)
 		value := o.stackPop()
-		byteStart := offset.Int64() + int64(0x20) - 1
+		byteStart := int64(offset.Uint64()) + int64(0x20) - 1
 		words := byteStart / 0x20
 		if byteStart%0x20 > 0 {
 			words += 1
@@ -83,19 +88,4 @@ func (o *Debugger) stackPop() []byte {
 	value := o.Stack[top]
 	o.Stack = o.Stack[:top] // remove from stack
 	return value
-}
-
-func correctUnderflow(x *big.Int) {
-	if x.Sign() < 0 {
-		y := new(big.Int).SetBytes([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})
-		x.Add(y, x).Add(x, big.NewInt(1))
-	}
-}
-
-func correctOverflow(x *big.Int) {
-	fmt.Println(len(x.Bytes()))
-	if len(x.Bytes()) > 32 {
-		// we just let overflow
-		x.SetBytes(x.Bytes()[1:33])
-	}
 }
