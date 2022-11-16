@@ -733,6 +733,31 @@ func Test_SAR2(t *testing.T) {
 	}
 }
 
+func Test_SHA3(t *testing.T) {
+	data, err := hex.DecodeString("63ffffffff6000526004600020")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := Debugger{
+		Bytecode: data,
+	}
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	debugger.StepDebugger()
+	should, err := hex.DecodeString("29045A592007D0C246EF02C2223570DA9522D0CF0F73282C79A1BC8F0BB2C238")
+	if err != nil {
+		t.Error(err)
+	}
+	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+		fmt.Printf("expected: %x\n", should)
+		fmt.Printf("is: %x\n", debugger.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {

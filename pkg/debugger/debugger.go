@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/holiman/uint256"
+	"github.com/wealdtech/go-merkletree/keccak256"
 )
 
 func (o *Debugger) StepDebugger() (bool, error) {
@@ -17,6 +18,7 @@ func (o *Debugger) StepDebugger() (bool, error) {
 }
 
 func (o *Debugger) executeCode(code byte) bool {
+	incPC := int16(1)
 	switch {
 	case code == 0x00: // STOP
 		return true
@@ -192,10 +194,15 @@ func (o *Debugger) executeCode(code byte) bool {
 			b = b.SRsh(b, n)
 		}
 		o.stackPush(b.Bytes())
+	case code == 0x20: // SHA3
+		offset := new(uint256.Int).SetBytes(o.stackPop())
+		byteStart := int64(offset.Uint64()) + int64(0x20)
+		size := new(uint256.Int).SetBytes(o.stackPop())
+		x := o.Memory[byteStart-size.ToBig().Int64() : byteStart]
+		o.stackPush(keccak256.New().Hash(x))
 	case code >= 0x60 && code <= 0x7f: // PUSHx
-		to := int16(code) - 0x5e
-		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + to)]
-		o.ProgramCounter = o.ProgramCounter + to
+		incPC = int16(code) - 0x5e
+		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
 		o.stackPush(value)
 	case code == 0x52: // MSTORE
 		byteArr := o.stackPop()
@@ -216,6 +223,7 @@ func (o *Debugger) executeCode(code byte) bool {
 			o.Memory[(byteStart - int64(len(value)-1) + int64(i))] = val
 		}
 	}
+	o.ProgramCounter += incPC
 	return false
 }
 
