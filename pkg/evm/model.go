@@ -49,3 +49,8 @@ func NewContract(bytecode []byte) Contract {
 		Bytecode: bytecode,
 	}
 }
+
+type Tx struct {
+	Origin string // origin sender address
+	Value  []byte
+}

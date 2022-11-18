@@ -774,9 +774,31 @@ func Test_Origin(t *testing.T) {
 	debugger := New()
 	contract := debugger.DeployContract(data)
 	debugger.StepDebugger(contract)
-	addr, _ := hex.DecodeString(debugger.Address[2:])
+	addr, _ := hex.DecodeString(debugger.Tx.Origin[2:])
 	if contract.Stack[0][0] != addr[0] {
 		fmt.Printf("expected: 0x%x\n", addr)
+		fmt.Printf("is: 0x%x\n", contract.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_CALLER(t *testing.T) {
+	fmt.Println("Not yet implemented")
+	t.Fail()
+}
+
+func Test_CALLVALUE(t *testing.T) {
+	data, err := hex.DecodeString("34")
+	if err != nil {
+		t.Error(err)
+	}
+	evm.GetEVM().AddressBalanceMap = make(map[string][]byte)
+	evm.GetEVM().AddressBalanceMap["0x00"] = []byte{0x01}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	if contract.Stack[0][0] != 0x01 {
+		fmt.Printf("expected: 0x%x\n", []byte{0x01})
 		fmt.Printf("is: 0x%x\n", contract.Stack[0])
 		t.Fail()
 	}
