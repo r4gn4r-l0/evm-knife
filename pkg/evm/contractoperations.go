@@ -7,7 +7,7 @@ import (
 	"github.com/wealdtech/go-merkletree/keccak256"
 )
 
-func (o *Contract) ExecuteCode(code byte) bool {
+func (o *Contract) ExecuteCode(code byte, sender string) bool {
 	incPC := int16(1)
 	switch {
 	case code == 0x00: // STOP
@@ -197,8 +197,24 @@ func (o *Contract) ExecuteCode(code byte) bool {
 			panic(err)
 		}
 		o.stackPush(hexCode)
-	case code == 0x31:
-
+	case code == 0x31: // BALANCE
+		address := o.stackPop()
+		strAddress := "0x" + hex.EncodeToString(address)
+		if val, ok := evminstance.AddressBalanceMap[strAddress]; ok {
+			o.stackPush(val)
+		} else {
+			o.stackPush([]byte{0x00})
+		}
+	case code == 0x32: // ORIGIN
+		if sender[:2] == "0x" {
+			sender = sender[2:]
+		}
+		senderByteAddress, err := hex.DecodeString(sender)
+		if err != nil {
+			// TODO: investigate
+			panic(err)
+		}
+		o.stackPush(senderByteAddress)
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		incPC = int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]

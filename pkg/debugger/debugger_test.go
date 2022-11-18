@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/r4gn4r-l0/evm-knife/pkg/evm"
 )
 
 func Test_Add(t *testing.T) {
@@ -740,6 +742,42 @@ func Test_Address(t *testing.T) {
 	if !strings.EqualFold(hex.EncodeToString(contract.Stack[0]), contract.Address[2:]) {
 		fmt.Println("expected: ", contract.Address)
 		fmt.Println("is: ", hex.EncodeToString(contract.Stack[0]))
+		t.Fail()
+	}
+}
+
+func Test_Balance(t *testing.T) {
+	data, err := hex.DecodeString("600031")
+	if err != nil {
+		t.Error(err)
+	}
+	evm.GetEVM().AddressBalanceMap = make(map[string][]byte)
+	evm.GetEVM().AddressBalanceMap["0x00"] = []byte{0x01}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	if contract.Stack[0][0] != 0x01 {
+		fmt.Println("expected: 1")
+		fmt.Println("is:  + ", contract.Stack[0][0])
+		t.Fail()
+	}
+}
+
+func Test_Origin(t *testing.T) {
+	data, err := hex.DecodeString("32")
+	if err != nil {
+		t.Error(err)
+	}
+	evm.GetEVM().AddressBalanceMap = make(map[string][]byte)
+	evm.GetEVM().AddressBalanceMap["0x00"] = []byte{0x01}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	addr, _ := hex.DecodeString(debugger.Address[2:])
+	if contract.Stack[0][0] != addr[0] {
+		fmt.Printf("expected: 0x%x\n", addr)
+		fmt.Printf("is: 0x%x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
