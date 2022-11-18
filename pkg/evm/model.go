@@ -53,4 +53,5 @@ func NewContract(bytecode []byte) Contract {
 type Tx struct {
 	Origin string // origin sender address
 	Value  []byte
+	Data   []byte
 }

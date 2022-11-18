@@ -221,6 +221,14 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 		break
 	case code == 0x34: // CALLVALUE
 		o.stackPush(tx.Value)
+	case code == 0x35: // CALLDATALOAD
+		offset := o.stackPop()
+		uintOffset := new(uint256.Int).SetBytes(offset)
+		o.stackPush(tx.Data[uintOffset.Uint64():])
+	case code == 0x36: // CALLDASIZE
+		size := len(tx.Data)
+		uintSize := uint256.NewInt(uint64(size))
+		o.stackPush(uintSize.Bytes())
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		incPC = int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]

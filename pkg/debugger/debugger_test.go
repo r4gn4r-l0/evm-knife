@@ -804,6 +804,37 @@ func Test_CALLVALUE(t *testing.T) {
 	}
 }
 
+func Test_CALLDATA(t *testing.T) {
+	data, err := hex.DecodeString("601f35")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	if contract.Stack[0][0] != 0xff { // hardcoded CALLDATA in debugger.New() function
+		fmt.Printf("expected: 0x%x\n", []byte{0xff})
+		fmt.Printf("is: 0x%x\n", contract.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_CALLDATASIZE(t *testing.T) {
+	data, err := hex.DecodeString("36")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	if contract.Stack[0][0] != 0x20 { // hardcoded CALLDATA in debugger.New() function
+		fmt.Printf("expected: 0x%x\n", []byte{0x20})
+		fmt.Printf("is: 0x%x\n", contract.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
