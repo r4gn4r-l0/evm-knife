@@ -8,7 +8,7 @@ import (
 
 func (o *Debugger) DeployContract(contract []byte) *evm.Contract {
 	contractObj := evm.NewContract(contract)
-	o.evm.AddContract(contractObj.Address, &contractObj)
+	evm.GetEVM().AddContract(contractObj.Address, &contractObj)
 	return &contractObj
 }
 

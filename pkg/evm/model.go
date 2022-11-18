@@ -6,16 +6,22 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-type EVM struct {
+type evm struct {
 	AddressContractMap map[string]*Contract
 	AddressBalanceMap  map[string][]byte
 }
 
-func (e *EVM) AddContract(address string, contract *Contract) {
+func (e *evm) AddContract(address string, contract *Contract) {
 	if e.AddressContractMap == nil {
 		e.AddressContractMap = make(map[string]*Contract)
 	}
 	e.AddressContractMap[address] = contract
+}
+
+var evminstance evm
+
+func GetEVM() *evm {
+	return &evminstance
 }
 
 type Contract struct {

@@ -197,6 +197,8 @@ func (o *Contract) ExecuteCode(code byte) bool {
 			panic(err)
 		}
 		o.stackPush(hexCode)
+	case code == 0x31:
+
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		incPC = int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
