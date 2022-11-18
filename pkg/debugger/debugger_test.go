@@ -3,6 +3,7 @@ package debugger
 import (
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -11,16 +12,16 @@ func Test_Add(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x02}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -35,16 +36,15 @@ func Test_AddOverflow(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x00}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -59,16 +59,15 @@ func Test_AddBigNumber(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x12, 0x00}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -83,16 +82,15 @@ func Test_Mul(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x04}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -107,16 +105,15 @@ func Test_MulOverflow(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -131,16 +128,15 @@ func Test_Sub(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x04}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -155,16 +151,15 @@ func Test_SubUnderFlow(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -179,16 +174,15 @@ func Test_Div(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x03}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -203,16 +197,15 @@ func Test_DivFloatingPoint(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x00}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -227,16 +220,15 @@ func Test_DivFloatingPoint2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x02}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -251,16 +243,15 @@ func Test_SDiv(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -275,16 +266,15 @@ func Test_SDivOverflow(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x02}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -299,16 +289,15 @@ func Test_Mod(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -323,16 +312,15 @@ func Test_Mod2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x02}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -347,16 +335,15 @@ func Test_SMod(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -371,17 +358,16 @@ func Test_AddMod(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x04}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -396,17 +382,16 @@ func Test_MulMod(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x04}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -416,16 +401,15 @@ func Test_SIGNEXTEND(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -435,16 +419,15 @@ func Test_LT(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -454,16 +437,15 @@ func Test_GT(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -473,16 +455,15 @@ func Test_AND(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x0f}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -492,16 +473,15 @@ func Test_AND2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x00}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -511,16 +491,15 @@ func Test_OR(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0xff}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -530,16 +509,15 @@ func Test_XOR(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0xff}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -549,16 +527,15 @@ func Test_XOR2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x00}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -568,34 +545,32 @@ func Test_NOT(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
 
 func Test_BYTE(t *testing.T) {
-	data, err := hex.DecodeString("601f60ff1a")
+	data, err := hex.DecodeString("60ff601f1a")
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0xff}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -605,16 +580,15 @@ func Test_BYTE2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0xff}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -624,16 +598,15 @@ func Test_SHL(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x02}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -643,16 +616,15 @@ func Test_SHL2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xf0}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -662,16 +634,15 @@ func Test_SHR(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -681,16 +652,15 @@ func Test_SHR2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x0f}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -700,16 +670,15 @@ func Test_SAR(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [1]byte{0x01}
-	if should[0] != debugger.Stack[0][0] {
+	if should[0] != contract.Stack[0][0] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -719,16 +688,15 @@ func Test_SAR2(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should := [32]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
 		t.Fail()
 	}
 }
@@ -738,22 +706,40 @@ func Test_SHA3(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	should, err := hex.DecodeString("29045A592007D0C246EF02C2223570DA9522D0CF0F73282C79A1BC8F0BB2C238")
 	if err != nil {
 		t.Error(err)
 	}
-	if should[0] != debugger.Stack[0][0] || should[31] != debugger.Stack[0][31] {
+	if should[0] != contract.Stack[0][0] || should[31] != contract.Stack[0][31] {
 		fmt.Printf("expected: %x\n", should)
-		fmt.Printf("is: %x\n", debugger.Stack[0])
+		fmt.Printf("is: %x\n", contract.Stack[0])
+		t.Fail()
+	}
+}
+
+func Test_Address(t *testing.T) {
+	data, err := hex.DecodeString("30")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+
+	if err != nil {
+		t.Error(err)
+	}
+	if !strings.EqualFold(hex.EncodeToString(contract.Stack[0]), contract.Address[2:]) {
+		fmt.Println("expected: ", contract.Address)
+		fmt.Println("is: ", hex.EncodeToString(contract.Stack[0]))
 		t.Fail()
 	}
 }
@@ -763,24 +749,23 @@ func Test_PushAndMstore(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	debugger := Debugger{
-		Bytecode: data,
-	}
-	debugger.StepDebugger()
-	debugger.StepDebugger()
-	debugger.StepDebugger()
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
 	expected := [64]byte{
 		byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x42), byte(0x42), byte(0x40), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00), byte(0x00),
 	}
-	if debugger.Memory[0] != expected[0] ||
+	if contract.Memory[0] != expected[0] ||
 		// offset 02 => array 31+2; opcode 62 (PUSH3) => PUSH 3 bytes
-		debugger.Memory[31] != expected[31] || // value = 0x00
-		debugger.Memory[32] != expected[32] || // value = 0x42
-		debugger.Memory[33] != expected[33] || // value = 0x42
-		debugger.Memory[34] != expected[34] || // value = 0x40
-		debugger.Memory[35] != expected[35] { // value = 0x00
+		contract.Memory[31] != expected[31] || // value = 0x00
+		contract.Memory[32] != expected[32] || // value = 0x42
+		contract.Memory[33] != expected[33] || // value = 0x42
+		contract.Memory[34] != expected[34] || // value = 0x40
+		contract.Memory[35] != expected[35] { // value = 0x00
 		fmt.Printf("expected: 0x%x\n", expected)
-		fmt.Printf("is: 0x%x\n", debugger.Memory)
+		fmt.Printf("is: 0x%x\n", contract.Memory)
 		t.Fail()
 	}
 }
