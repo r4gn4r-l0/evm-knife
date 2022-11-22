@@ -896,6 +896,23 @@ func Test_CALLDATACOPY3(t *testing.T) {
 	}
 }
 
+func Test_CODESIZE(t *testing.T) {
+	data, err := hex.DecodeString("7c00000000000000000000000000000000000000000000000000000000005038")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	if contract.Stack[0][0] != 0x20 {
+		fmt.Printf("expected: 0x%x\n", []byte{0x20})
+		fmt.Printf("is: 0x%x\n", contract.Memory)
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {

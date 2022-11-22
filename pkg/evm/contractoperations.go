@@ -241,6 +241,12 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 			}
 			o.Memory[(byteStart-int64(size))+int64(i)+1] = value
 		}
+	case code == 0x38: // CODESIZE
+		size := len(o.Bytecode)
+		uintSize := uint256.NewInt(uint64(size))
+		o.stackPush(uintSize.Bytes())
+	case code == 0x50: // POP
+		o.stackPop()
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		incPC = int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
