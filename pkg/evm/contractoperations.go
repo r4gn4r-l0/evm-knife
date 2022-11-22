@@ -2,6 +2,7 @@ package evm
 
 import (
 	"encoding/hex"
+	"strings"
 
 	"github.com/holiman/uint256"
 	"github.com/wealdtech/go-merkletree/keccak256"
@@ -254,6 +255,29 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 			var value byte = 0x00
 			if len(o.Bytecode) >= int(offset)+i+1 {
 				value = o.Bytecode[int(offset)+i]
+			}
+			o.Memory[(byteStart-int64(size))+int64(i)+1] = value
+		}
+	case code == 0x3a: // GASPRICE
+		// TODO: impl gas
+		o.stackPush([]byte{0x00})
+	case code == 0x3b: // EXTCODESIZE
+		address := o.stackPop()
+		extContract := evminstance.AddressContractMap[strings.ToLower("0x"+hex.EncodeToString(address))]
+		size := len(extContract.Bytecode)
+		uintSize := uint256.NewInt(uint64(size))
+		o.stackPush(uintSize.Bytes())
+	case code == 0x3c: // EXTCODECOPY
+		address := o.stackPop()
+		destOffset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		offset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		size := int(new(uint256.Int).SetBytes(o.stackPop()).Uint64())
+		extContract := evminstance.AddressContractMap[strings.ToLower("0x"+hex.EncodeToString(address))]
+		byteStart := o.calcStartingByteAndPrepareMemorySize(destOffset, int64(size))
+		for i := 0; i < size; i++ {
+			var value byte = 0x00
+			if len(extContract.Bytecode) >= int(offset)+i+1 {
+				value = extContract.Bytecode[int(offset)+i]
 			}
 			o.Memory[(byteStart-int64(size))+int64(i)+1] = value
 		}

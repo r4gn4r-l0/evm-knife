@@ -936,6 +936,55 @@ func Test_CODECOPY(t *testing.T) {
 	}
 }
 
+func Test_EXTCODESIZE(t *testing.T) {
+	data, err := hex.DecodeString("600050")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	c0 := debugger.DeployContract(data)
+	dataC1, err := hex.DecodeString("73" + c0.Address[2:] + "3b")
+	if err != nil {
+		fmt.Println(err)
+		t.Fail()
+	}
+	c1 := debugger.DeployContract(dataC1)
+	debugger.StepDebugger(c1)
+	debugger.StepDebugger(c1)
+	if c1.Stack[0][0] != 0x03 {
+		fmt.Printf("expected: 0x%x\n", []byte{0x03})
+		fmt.Printf("is: 0x%x\n", c1.Stack)
+		t.Fail()
+	}
+}
+
+func Test_EXTCODECOPY(t *testing.T) {
+	data, err := hex.DecodeString("600050")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	c0 := debugger.DeployContract(data)
+	dataC1, err := hex.DecodeString("60036000600073" + c0.Address[2:] + "3c")
+	if err != nil {
+		fmt.Println(err)
+		t.Fail()
+	}
+	c1 := debugger.DeployContract(dataC1)
+	debugger.StepDebugger(c1)
+	debugger.StepDebugger(c1)
+	debugger.StepDebugger(c1)
+	debugger.StepDebugger(c1)
+	debugger.StepDebugger(c1)
+	if c1.Memory[0] != data[0] ||
+		c1.Memory[1] != data[1] ||
+		c1.Memory[2] != data[2] {
+		fmt.Printf("expected: 0x%x\n", data)
+		fmt.Printf("is: 0x%x\n", c1.Memory)
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {

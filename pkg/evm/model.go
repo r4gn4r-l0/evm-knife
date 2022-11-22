@@ -2,6 +2,7 @@ package evm
 
 import (
 	"crypto/ecdsa"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -45,7 +46,7 @@ func NewContract(bytecode []byte) Contract {
 	}
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 	return Contract{
-		Address:  address,
+		Address:  strings.ToLower(address),
 		Bytecode: bytecode,
 	}
 }
