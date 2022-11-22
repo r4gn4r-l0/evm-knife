@@ -229,6 +229,18 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 		size := len(tx.Data)
 		uintSize := uint256.NewInt(uint64(size))
 		o.stackPush(uintSize.Bytes())
+	case code == 0x37: // CALLDATACOPY
+		destOffset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		offset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		size := int(new(uint256.Int).SetBytes(o.stackPop()).Uint64())
+		byteStart := o.calcStartingByteAndPrepareMemorySize(destOffset, int64(size))
+		for i := 0; i < size; i++ {
+			var value byte = 0x00
+			if len(tx.Data) >= int(offset)+i+1 {
+				value = tx.Data[int(offset)+i]
+			}
+			o.Memory[(byteStart-int64(size))+int64(i)+1] = value
+		}
 	case code >= 0x60 && code <= 0x7f: // PUSHx
 		incPC = int16(code) - 0x5e
 		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
@@ -237,23 +249,28 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 		byteArr := o.stackPop()
 		offset := new(uint256.Int).SetBytes(byteArr)
 		value := o.stackPop()
-		byteStart := int64(offset.Uint64()) + int64(0x20) - 1
-		words := byteStart / 0x20
-		if byteStart%0x20 > 0 {
-			words += 1
-		}
-		memSize := words * 0x20
-		if int64(len(o.Memory)) < memSize {
-			appendSize := memSize - int64(len(o.Memory))
-			appendArray := make([]byte, appendSize)
-			o.Memory = append(o.Memory, appendArray...)
-		}
+		byteStart := o.calcStartingByteAndPrepareMemorySize(offset.ToBig().Int64(), 0x20) // 0x20 we store full word
 		for i, val := range value {
 			o.Memory[(byteStart - int64(len(value)-1) + int64(i))] = val
 		}
 	}
 	o.ProgramCounter += incPC
 	return false
+}
+
+func (o *Contract) calcStartingByteAndPrepareMemorySize(offset int64, size int64) int64 {
+	byteStart := offset + size - 1
+	words := (byteStart + 0x01) / 0x20
+	if (byteStart+0x01)%0x20 > 0 || byteStart == 0x00 {
+		words += 1
+	}
+	memSize := words * 0x20
+	if int64(len(o.Memory)) < memSize {
+		appendSize := memSize - int64(len(o.Memory))
+		appendArray := make([]byte, appendSize)
+		o.Memory = append(o.Memory, appendArray...)
+	}
+	return byteStart
 }
 
 func (o *Contract) stackPush(value []byte) {
