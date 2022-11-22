@@ -245,12 +245,20 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 		size := len(o.Bytecode)
 		uintSize := uint256.NewInt(uint64(size))
 		o.stackPush(uintSize.Bytes())
+	case code == 0x39: // CALLDATACOPY
+		destOffset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		offset := new(uint256.Int).SetBytes(o.stackPop()).ToBig().Int64()
+		size := int(new(uint256.Int).SetBytes(o.stackPop()).Uint64())
+		byteStart := o.calcStartingByteAndPrepareMemorySize(destOffset, int64(size))
+		for i := 0; i < size; i++ {
+			var value byte = 0x00
+			if len(o.Bytecode) >= int(offset)+i+1 {
+				value = o.Bytecode[int(offset)+i]
+			}
+			o.Memory[(byteStart-int64(size))+int64(i)+1] = value
+		}
 	case code == 0x50: // POP
 		o.stackPop()
-	case code >= 0x60 && code <= 0x7f: // PUSHx
-		incPC = int16(code) - 0x5e
-		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
-		o.stackPush(value)
 	case code == 0x52: // MSTORE
 		byteArr := o.stackPop()
 		offset := new(uint256.Int).SetBytes(byteArr)
@@ -259,6 +267,10 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx) bool {
 		for i, val := range value {
 			o.Memory[(byteStart - int64(len(value)-1) + int64(i))] = val
 		}
+	case code >= 0x60 && code <= 0x7f: // PUSHx
+		incPC = int16(code) - 0x5e
+		value := o.Bytecode[(o.ProgramCounter + 0x01):(o.ProgramCounter + incPC)]
+		o.stackPush(value)
 	}
 	o.ProgramCounter += incPC
 	return false

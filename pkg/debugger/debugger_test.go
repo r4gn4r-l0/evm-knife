@@ -913,6 +913,29 @@ func Test_CODESIZE(t *testing.T) {
 	}
 }
 
+func Test_CODECOPY(t *testing.T) {
+	data, err := hex.DecodeString("7DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5060206000600039")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	contract := debugger.DeployContract(data)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	debugger.StepDebugger(contract)
+	if contract.Memory[0] != 0x7d ||
+		contract.Memory[1] != 0xff ||
+		contract.Memory[30] != 0xff ||
+		contract.Memory[31] != 0x50 {
+		fmt.Printf("expected: 0x%x\n", []byte{0x7d, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x50})
+		fmt.Printf("is: 0x%x\n", contract.Memory)
+		t.Fail()
+	}
+}
+
 func Test_PushAndMstore(t *testing.T) {
 	data, err := hex.DecodeString("62424240600252")
 	if err != nil {
