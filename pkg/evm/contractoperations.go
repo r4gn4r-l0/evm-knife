@@ -8,11 +8,11 @@ import (
 	"github.com/wealdtech/go-merkletree/keccak256"
 )
 
-func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) bool {
+func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 	incPC := int16(1)
 	switch {
 	case code == 0x00: // STOP
-		return true
+		return true, nil
 	case code == 0x01: // ADD
 		a := new(uint256.Int).SetBytes(ctx.stackPop())
 		b := new(uint256.Int).SetBytes(ctx.stackPop())
@@ -297,10 +297,15 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) bool {
 
 		subContext := NewContext()
 		contract := evminstance.AddressContractMap[strings.ToLower("0x"+hex.EncodeToString(address))]
-		subContext.execute(contract, &Tx{
+		success := subContext.execute(contract, &Tx{
 			Value: value,
 			Data:  data,
 		})
+		if success {
+			ctx.stackPush([]byte{0x01})
+		} else {
+			ctx.stackPush([]byte{0x00})
+		}
 		memoryByteStart := ctx.calcStartingByteAndPrepareMemorySize(retOffset, int64(retSize))
 		for i := 0; i < retSize; i++ {
 			var value byte = 0x00
@@ -331,7 +336,7 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) bool {
 		ctx.stackPush(value)
 	}
 	ctx.ProgramCounter += incPC
-	return false
+	return false, nil
 }
 
 func (ctx *Context) calcStartingByteAndPrepareMemorySize(offset int64, size int64) int64 {
