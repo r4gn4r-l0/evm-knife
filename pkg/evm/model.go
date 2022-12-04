@@ -26,12 +26,9 @@ func GetEVM() *evm {
 }
 
 type Contract struct {
-	Address        string
-	Bytecode       []byte
-	ProgramCounter int16    // evm smart contract has max. size of 24kb => 24.576b
-	Stack          [][]byte // reverse stack => len(Stack)-1 is top
-	Memory         []byte
-	Storage        [][]byte
+	Address  string
+	Bytecode []byte
+	Storage  [][]byte
 }
 
 func NewContract(bytecode []byte) Contract {
@@ -55,4 +52,15 @@ type Tx struct {
 	Origin string // origin sender address
 	Value  []byte
 	Data   []byte
+}
+
+type Context struct {
+	ProgramCounter int16    // evm smart contract has max. size of 24kb => 24.576b
+	Stack          [][]byte // reverse stack => len(Stack)-1 is top
+	Memory         []byte
+	ReturnData     []byte
+}
+
+func NewContext() Context {
+	return Context{}
 }

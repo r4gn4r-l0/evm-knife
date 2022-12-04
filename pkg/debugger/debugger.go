@@ -12,10 +12,10 @@ func (o *Debugger) DeployContract(contract []byte) *evm.Contract {
 	return &contractObj
 }
 
-func (o *Debugger) StepDebugger(contract *evm.Contract) (bool, error) {
+func (o *Debugger) StepDebugger(contract *evm.Contract, ctx *evm.Context) (bool, error) {
 	if len(contract.Bytecode) > 0 {
-		code := contract.Bytecode[contract.ProgramCounter]
-		finished := contract.ExecuteCode(code, &o.Tx)
+		code := contract.Bytecode[ctx.ProgramCounter]
+		finished := contract.ExecuteCode(code, &o.Tx, ctx)
 		return finished, nil
 	} else {
 		return true, errors.New("no bytecode given")
