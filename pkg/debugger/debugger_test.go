@@ -1033,6 +1033,36 @@ func Test_EXTCODECOPY(t *testing.T) {
 	}
 }
 
+func Test_RETURNDATASIZE(t *testing.T) {
+	data, err := hex.DecodeString("60ff60005260016000F3")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	ctx := evm.NewContext()
+	c0 := debugger.DeployContract(data)
+	dataC1, err := hex.DecodeString("6001602060006000600073" + c0.Address[2:] + "6000F13D")
+	if err != nil {
+		fmt.Println(err)
+		t.Fail()
+	}
+	c1 := debugger.DeployContract(dataC1)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	if ctx.Stack[0][0] != 0x01 || len(ctx.Stack[0]) != 1 {
+		fmt.Printf("top of stack expected: 0x%x\n", []byte{0x01})
+		fmt.Printf("top of stack is: 0x%x\n", ctx.Stack[0])
+		t.Fail()
+	}
+}
+
 func Test_CALL(t *testing.T) {
 	data, err := hex.DecodeString("60ff60005260016000F3")
 	if err != nil {

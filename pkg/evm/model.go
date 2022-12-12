@@ -59,6 +59,7 @@ type Context struct {
 	Stack          [][]byte // reverse stack => len(Stack)-1 is top
 	Memory         []byte
 	ReturnData     []byte
+	SubContext     *Context
 }
 
 func NewContext() Context {

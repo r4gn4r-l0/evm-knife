@@ -281,6 +281,13 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 			}
 			ctx.Memory[(byteStart-int64(size))+int64(i)+1] = value
 		}
+	case code == 0x3d: // RETURNDATASIZE
+		if ctx.SubContext != nil {
+			uintSize := uint256.NewInt(uint64(len(ctx.SubContext.ReturnData)))
+			ctx.stackPush(uintSize.Bytes())
+		} else {
+			ctx.stackPush([]byte{0x00})
+		}
 	case code == 0xf1: // CALL
 		ctx.stackPop() // gas
 		address := ctx.stackPop()
@@ -295,9 +302,10 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 		retOffset := new(uint256.Int).SetBytes(ctx.stackPop()).ToBig().Int64()
 		retSize := int(new(uint256.Int).SetBytes(ctx.stackPop()).Uint64())
 
-		subContext := NewContext()
+		var subContext = NewContext()
+		ctx.SubContext = &subContext
 		contract := evminstance.AddressContractMap[strings.ToLower("0x"+hex.EncodeToString(address))]
-		success := subContext.execute(contract, &Tx{
+		success := ctx.SubContext.execute(contract, &Tx{
 			Value: value,
 			Data:  data,
 		})
@@ -309,7 +317,7 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 		memoryByteStart := ctx.calcStartingByteAndPrepareMemorySize(retOffset, int64(retSize))
 		for i := 0; i < retSize; i++ {
 			var value byte = 0x00
-			if len(subContext.ReturnData) >= i+1 {
+			if len(ctx.SubContext.ReturnData) >= i+1 {
 				value = subContext.ReturnData[i]
 			}
 			ctx.Memory[(memoryByteStart-int64(retSize))+int64(i)+1] = value
@@ -319,7 +327,7 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 		byteStart := int64(offset.Uint64()) + int64(0x20)
 		size := new(uint256.Int).SetBytes(ctx.stackPop())
 		ctx.ReturnData = ctx.Memory[byteStart-size.ToBig().Int64() : byteStart]
-
+		return true, nil
 	case code == 0x50: // POP
 		ctx.stackPop()
 	case code == 0x52: // MSTORE
