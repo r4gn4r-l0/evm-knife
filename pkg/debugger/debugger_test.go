@@ -1063,6 +1063,43 @@ func Test_RETURNDATASIZE(t *testing.T) {
 	}
 }
 
+func Test_RETURNDATACOPY(t *testing.T) {
+	data, err := hex.DecodeString("60ff60005260026000F3")
+	if err != nil {
+		t.Error(err)
+	}
+	debugger := New()
+	ctx := evm.NewContext()
+	c0 := debugger.DeployContract(data)
+	dataC1, err := hex.DecodeString("6001602060006000600073" + c0.Address[2:] + "6000F16001600060003E6001600160013E")
+	if err != nil {
+		fmt.Println(err)
+		t.Fail()
+	}
+	c1 := debugger.DeployContract(dataC1)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	debugger.StepDebugger(c1, &ctx)
+	if ctx.Memory[0] != 0x01 || ctx.Memory[1] != 0xff {
+		fmt.Printf("expected: 0x%x\n", []byte{0x00, 0xff})
+		fmt.Printf("is: 0x%x\n", ctx.Memory)
+		t.Fail()
+	}
+}
+
 func Test_CALL(t *testing.T) {
 	data, err := hex.DecodeString("60ff60005260016000F3")
 	if err != nil {

@@ -288,6 +288,20 @@ func (o *Contract) ExecuteCode(code byte, tx *Tx, ctx *Context) (bool, error) {
 		} else {
 			ctx.stackPush([]byte{0x00})
 		}
+	case code == 0x3e: // RETURNDATACOPY
+		if ctx.SubContext != nil {
+			destOffset := new(uint256.Int).SetBytes(ctx.stackPop()).ToBig().Int64()
+			offset := new(uint256.Int).SetBytes(ctx.stackPop()).ToBig().Int64()
+			size := int(new(uint256.Int).SetBytes(ctx.stackPop()).Uint64())
+			byteStart := ctx.calcStartingByteAndPrepareMemorySize(destOffset, int64(size))
+			for i := 0; i < size; i++ {
+				var value byte = 0x00
+				if len(ctx.SubContext.ReturnData) >= int(offset)+i+1 {
+					value = ctx.SubContext.ReturnData[int(offset)+i]
+				}
+				ctx.Memory[(byteStart-int64(size))+int64(i)+1] = value
+			}
+		}
 	case code == 0xf1: // CALL
 		ctx.stackPop() // gas
 		address := ctx.stackPop()
